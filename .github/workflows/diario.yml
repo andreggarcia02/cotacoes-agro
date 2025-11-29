@@ -1,0 +1,30 @@
+name: Coleta diaria
+
+on:
+  schedule:
+    - cron: "0 10 * * *"   # 07:00 da manhã no Brasil (10 UTC)
+  workflow_dispatch:
+
+jobs:
+  coleta:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - run: pip install requests beautifulsoup4
+
+      - run: python coletas.py
+
+      - name: Commit e push
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add .
+          git commit -m "Atualização diária" || echo "Sem alterações"
+          git push
